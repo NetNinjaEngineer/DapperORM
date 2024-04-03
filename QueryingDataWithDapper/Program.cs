@@ -23,10 +23,66 @@ namespace QueryingDataWithDapper
 
             //QueryingSingleRowWithDapper(_context);
 
-            QueryMultipleRows(_context);
+            //QueryMultipleRows(_context);
+
+            QueryMultipleResults(_context);
 
 
             Console.ReadKey();
+        }
+
+        private static void QueryMultipleResults(DapperContext context)
+        {
+            using (var connection = context.CreateConnection())
+            {
+                #region QueryMultiple method allows you to select multiple results from a database query
+
+                /*
+                    The QueryMultiple method provides a simple way of fetching data stored in different tables or views with a single database query.
+                    By using dapper's QueryMultiple method, you can select multiple rows from different tables in one go, saving time and resources.
+                    Dapper's QueryMultiple method allows you to map results from multiple queries into strongly typed collections that can be easily consumed within your application code.
+                    Using Dapper QueryMultiple is an efficient way to select multiple results from a single database query.
+                    It saves time and resources by avoiding unnecessary round trips to the database server and eliminates the need for complex SQL queries.
+
+                 */
+
+                var sql = @"
+                    Select * From Employees;
+                    Select * From Departments;
+                    Select * From Departments Where Id = @departmentId
+                ";
+
+                using (var multiResult = connection.QueryMultiple(sql, new { departmentId = 7 }))
+                {
+                    var employees = multiResult.Read<Employee>().ToList();
+
+                    var departments = multiResult.Read<Department>().ToList();
+
+                    var departmentWithId7 = multiResult.ReadFirstOrDefault<Department>();
+
+                    if (departmentWithId7 is not null)
+                        Console.WriteLine(departmentWithId7.Id + $"\t Code: {departmentWithId7.Code}");
+
+
+                    foreach (var employee in employees)
+                        Console.WriteLine($"\nEmployeeName: {employee.Name}" +
+                            $"\nAge: {employee.Age}" +
+                            $"\nSalary: {employee.Salary:C}" +
+                            $"\nEmail: {employee.Email}" +
+                            $"\nPhoneNumber: {employee.PhoneNumber}" +
+                            $"\nHireDate: {employee.HireDate}");
+
+                    foreach (var department in departments)
+                        Console.WriteLine($"\nName: {department.DepartmentName}" +
+                            $"\nCode: {department.Code}" +
+                            $"\nDateOfCreation: {department.DateOfCreation}");
+
+                }
+
+
+                #endregion
+
+            }
         }
 
         private static void QueryMultipleRows(DapperContext context)
