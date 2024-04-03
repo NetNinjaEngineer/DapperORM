@@ -27,10 +27,28 @@ namespace QueryingDataWithDapper
 
             //QueryMultipleResults(_context);
 
-            QuerySpecificColumns(_context);
+            //QuerySpecificColumns(_context);
+
+            ExecutingNonQueryCommands(_context);
 
 
             Console.ReadKey();
+        }
+
+        private static void ExecutingNonQueryCommands(DapperContext context)
+        {
+            using (var connection = context.CreateConnection())
+            {
+                var sql = @"INSERT INTO Departments(Code, DepartmentName, DateOfCreation) 
+                    VALUES (@code, @departmentName, @dateOfCreate)";
+
+                var rowsAffected = connection.Execute(sql, new
+                { code = "FIN000", departmentName = "Financce", dateOfCreate = "2024-04-04" });
+
+                if (rowsAffected > 0)
+                    Console.WriteLine("Added Successfully");
+
+            }
         }
 
         private static void QuerySpecificColumns(DapperContext context)
