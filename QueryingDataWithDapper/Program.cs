@@ -25,10 +25,28 @@ namespace QueryingDataWithDapper
 
             //QueryMultipleRows(_context);
 
-            QueryMultipleResults(_context);
+            //QueryMultipleResults(_context);
+
+            QuerySpecificColumns(_context);
 
 
             Console.ReadKey();
+        }
+
+        private static void QuerySpecificColumns(DapperContext context)
+        {
+            using (var connection = context.CreateConnection())
+            {
+                var sql = "Select DepartmentName, Code, DateOfCreation From Departments";
+
+                var departments = connection.Query<Department>(sql);
+
+                foreach (var department in departments)
+                    Console.WriteLine($"\nDept: {department.DepartmentName}" +
+                        $"\nDateOfCreation: {department.DateOfCreation}" +
+                        $"\nCode: {department.Code}");
+
+            }
         }
 
         private static void QueryMultipleResults(DapperContext context)
