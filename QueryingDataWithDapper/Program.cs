@@ -2,6 +2,7 @@
 using Dapper.Shared;
 using Dapper.Shared.Models;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace QueryingDataWithDapper
 {
@@ -31,10 +32,30 @@ namespace QueryingDataWithDapper
 
             //ExecutingNonQueryCommands(_context);
 
-            DapperExecuteReader(_context);
+            //DapperExecuteReader(_context);
+
+            ExecutingStoredProcedures(_context);
 
 
             Console.ReadKey();
+        }
+
+        private static void ExecutingStoredProcedures(DapperContext context)
+        {
+            using (var connection = context.CreateConnection())
+            {
+                var employee = connection.QuerySingleOrDefault<Employee>("GetEmployeeById",
+                    new { id = 16 }, commandType: CommandType.StoredProcedure);
+
+                if (employee is not null)
+                    Console.WriteLine($"\n({employee.Id}) - {employee.Name}" +
+                        $"\nAge: {employee.Age}" +
+                        $"\nSalary: {employee.Salary:C}" +
+                        $"\nEmail: {employee.Email}" +
+                        $"\nPhoneNumber: {employee.PhoneNumber}" +
+                        $"\nHireDate: {employee.HireDate}");
+
+            }
         }
 
         private static void DapperExecuteReader(DapperContext context)
