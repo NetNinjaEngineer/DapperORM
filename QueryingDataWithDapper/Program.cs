@@ -29,10 +29,34 @@ namespace QueryingDataWithDapper
 
             //QuerySpecificColumns(_context);
 
-            ExecutingNonQueryCommands(_context);
+            //ExecutingNonQueryCommands(_context);
+
+            DapperExecuteReader(_context);
 
 
             Console.ReadKey();
+        }
+
+        private static void DapperExecuteReader(DapperContext context)
+        {
+            using (var connection = context.CreateConnection())
+            {
+                var reader = connection.ExecuteReader("Select * From Employees");
+
+                while (reader.Read())
+                {
+                    var employeeId = reader.GetInt32(0);
+                    var employeeName = reader.GetString(1);
+                    var employeeAge = reader.GetInt32(2);
+                    var employeeAddress = reader.GetString(3);
+
+                    Console.WriteLine($"\nId: {employeeId}" +
+                        $"\nName: {employeeName}" + $"\nAge: {employeeAge}" +
+                        $"\nAddress: {employeeAddress}");
+
+                }
+
+            }
         }
 
         private static void ExecutingNonQueryCommands(DapperContext context)
