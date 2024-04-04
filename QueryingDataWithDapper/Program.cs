@@ -34,10 +34,43 @@ namespace QueryingDataWithDapper
 
             //DapperExecuteReader(_context);
 
-            ExecutingStoredProcedures(_context);
+            //ExecutingStoredProcedures(_context);
+
+            ExecutingInsertWithDapper(_context);
 
 
             Console.ReadKey();
+        }
+
+        private static void ExecutingInsertWithDapper(DapperContext context)
+        {
+            var sql = "Insert into Departments Values(@Code, @DepartmentName, @DateOfCreation)";
+
+            using (var connection = context.CreateConnection())
+            {
+                var departmentsToInsert = new List<Department>
+                {   new()
+                    {
+                        Code = "Test001",
+                        DateOfCreation = DateTime.Now,
+                        DepartmentName = "TestDept001"
+                    },
+                    new()
+                    {
+                        Code = "Test002",
+                        DateOfCreation = DateTime.Now,
+                        DepartmentName = "TestDept002"
+                    }
+
+                };
+
+                var rowsAffected = connection.Execute(sql, departmentsToInsert);
+
+                if (rowsAffected > 0)
+                    Console.WriteLine($"{rowsAffected} row(s) inserted.");
+
+
+            }
         }
 
         private static void ExecutingStoredProcedures(DapperContext context)
